@@ -1,28 +1,39 @@
-pipeline { 
-  
-   agent any
-
-   stages {
-   
-     stage('Install Dependencies') { 
-        steps { 
-           sh 'npm install' 
+pipeline {
+    agent any
+    
+    tools {
+        terraform 'terraform'
+    }
+    stages {
+        stage ("checkout from GIT") {
+            steps {
+                git branch: 'main', credentialsId: '', url: 'https:.git'
+            }
         }
-     }
-     
-     stage('Test') { 
-        steps { 
-           sh 'echo "testing application..."'
+        stage ("terraform init") {
+            steps {
+                sh 'terraform init'
+            }
         }
-      }
-
-         stage("Deploy application") { 
-         steps { 
-           sh 'echo "deploying application..."'
-         }
-
-     }
-  
-   	}
-
-   }
+        stage ("terraform fmt") {
+            steps {
+                sh 'terraform fmt'
+            }
+        }
+        stage ("terraform validate") {
+            steps {
+                sh 'terraform validate'
+            }
+        }
+        stage ("terrafrom plan") {
+            steps {
+                sh 'terraform plan '
+            }
+        }
+        stage ("terraform apply") {
+            steps {
+                sh 'terraform apply --auto-approve'
+            }
+        }
+    }
+}
